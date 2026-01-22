@@ -1,8 +1,11 @@
 package kz.aitu.Library.entities;
 
 public class Magazine extends LibraryItem {
-
     private int issue;
+
+    public Magazine() {
+        super("", "", 0);
+    }
 
     public Magazine(String id, String title, int year, int issue) {
         super(id, title, year);
@@ -13,12 +16,23 @@ public class Magazine extends LibraryItem {
     public void setIssue(int issue) { this.issue = issue; }
 
     @Override
-    public int getMaxBorrowDays() {
-        return 7;
-    }
+    public int getMaxBorrowDays() { return 7; }
 
     @Override
     public String toString() {
         return "Magazine{" + super.toString() + ", issue=" + issue + "}";
+    }
+
+    // ИСПРАВЛЕННЫЕ МЕТОДЫ (теперь они сохраняют данные)
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
     }
 }

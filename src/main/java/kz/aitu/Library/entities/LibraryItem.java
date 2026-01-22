@@ -4,9 +4,9 @@ import java.util.Objects;
 
 public abstract class LibraryItem {
 
-    private String id;
-    private String title;
-    private int year;
+    String id;
+    String title;
+    int year;
     private Integer borrowedByMemberId = null;
 
     public LibraryItem(String id, String title, int year) {

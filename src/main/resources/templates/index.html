@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>AITU Library System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .hero-section { background: linear-gradient(135deg, #0d6efd 0%, #00d4ff 100%); color: white; padding: 60px 0; border-radius: 0 0 20px 20px; }
+        .nav-card { transition: 0.3s; cursor: pointer; border: none; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .nav-card:hover { transform: translateY(-10px); background-color: #f8f9fa; }
+        .nav-link { color: inherit; text-decoration: none; }
+    </style>
+</head>
+<body class="bg-light">
+
+<header class="hero-section text-center mb-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold"><i class="bi bi-bank me-3"></i>AITU Library System</h1>
+        <p class="lead">Добро пожаловать в систему управления ресурсами библиотеки</p>
+        <a th:if="${view != null && view != 'home'}" href="/library?view=home" class="btn btn-outline-light mt-3">
+            <i class="bi bi-house-door"></i> На главную
+        </a>
+    </div>
+</header>
+
+<div class="container">
+
+    <div th:if="${view == null || view == 'home'}" class="row g-4 justify-content-center text-center">
+        <div class="col-md-4">
+            <a href="/library?view=books" class="nav-link">
+                <div class="card h-100 nav-card p-4">
+                    <i class="bi bi-book text-primary display-1 mb-3"></i>
+                    <h3>Список книг</h3>
+                    <p class="text-muted">Просмотр и поиск доступных изданий</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="/library?view=members" class="nav-link">
+                <div class="card h-100 nav-card p-4">
+                    <i class="bi bi-people text-success display-1 mb-3"></i>
+                    <h3>Участники</h3>
+                    <p class="text-muted">Управление пользователями библиотеки</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="/library?view=magazines" class="nav-link">
+                <div class="card h-100 nav-card p-4">
+                    <i class="bi bi-journal-bookmark text-warning display-1 mb-3"></i>
+                    <h3>Журналы</h3>
+                    <p class="text-muted">Каталог периодических изданий</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${view == 'books'}" class="card shadow border-0 p-4">
+        <h2 class="mb-4"><i class="bi bi-book me-2"></i> Каталог книг</h2>
+        <table class="table table-hover">
+            <thead class="table-dark">
+            <tr><th>ID</th><th>Название</th><th>Автор</th><th>Год</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="book : ${books}">
+                <td th:text="${book.id}"></td>
+                <td class="fw-bold" th:text="${book.title}"></td>
+                <td th:text="${book.author}"></td>
+                <td th:text="${book.year}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${view == 'members'}" class="card shadow border-0 p-4">
+        <h2 class="mb-4"><i class="bi bi-people me-2"></i> Список участников</h2>
+        <table class="table table-hover">
+            <thead class="table-success text-dark">
+            <tr><th>ID</th><th>Имя Фамилия</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="m : ${members}">
+                <td th:text="${m.id}"></td>
+                <td th:text="${m.name}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${view == 'magazines'}" class="card shadow border-0 p-4">
+        <h2 class="mb-4 text-primary"><i class="bi bi-journal-text me-2"></i> Архив журналов</h2>
+        <table class="table table-hover">
+            <thead class="table-primary">
+            <tr><th>ID</th><th>Название</th><th>Выпуск №</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="mag : ${magazines}">
+                <td th:text="${mag.id}"></td>
+                <td th:text="${mag.title}"></td>
+                <td th:text="${mag.issue}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<footer class="text-center mt-5 py-4 text-muted border-top">
+    &copy; 2026 AITU Library Management
+</footer>
+
+</body>
+</html>

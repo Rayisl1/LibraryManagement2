@@ -1,331 +1,190 @@
 package kz.aitu.Library.entities;
 
-import kz.aitu.Library.StudentMember;
-import org.jspecify.annotations.Nullable;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DataBaseControl {
+    private static final String URL = "jdbc:postgresql://localhost:5432/postgres";
+    private static final String USER = "postgres";
+    private static final String PASS = "lagohe14";
+
+    // --- МЕТОДЫ ДЛЯ КНИГ (Books) ---
+
     public static void addBook(String id, String title, String author, Integer year) {
-        String connectionURL = "jdbc:postgresql://localhost:5432/postgres";
-        Connection con = null;
-        PreparedStatement stmt = null;
-
-        try {
-            Class.forName("org.postgresql.Driver");
-
-            con = DriverManager.getConnection(connectionURL, "postgres", "lagohe14");
-
-            String sqlCourse = "INSERT INTO book (id, title, author, year) VALUES (?, ?, ?, ?)";
-            stmt = con.prepareStatement(sqlCourse);
-
+        String sql = "INSERT INTO book (id, title, author, year) VALUES (?, ?, ?, ?)";
+        try (Connection con = DriverManager.getConnection(URL, USER, PASS);
+             PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, id);
             stmt.setString(2, title);
             stmt.setString(3, author);
             stmt.setInt(4, year);
-
             stmt.executeUpdate();
-
             System.out.println("Book added: " + title);
-
-        } catch (ClassNotFoundException e) {
-            System.out.println("PostgreSQL JDBC Driver not found.");
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (stmt != null) stmt.close();
-                if (con != null) con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     public static void deleteBook(String title) {
-        String connectionURL = "jdbc:postgresql://localhost:5432/postgres";
-        Connection con = null;
-        PreparedStatement stmt = null;
-
-        try {
-            Class.forName("org.postgresql.Driver");
-
-            con = DriverManager.getConnection(connectionURL, "postgres", "lagohe14");
-
-            // SQL to delete a book by title
-            String sqlDelete = "DELETE FROM book WHERE title = ?";
-            stmt = con.prepareStatement(sqlDelete);
-
+        String sql = "DELETE FROM book WHERE title = ?";
+        try (Connection con = DriverManager.getConnection(URL, USER, PASS);
+             PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, title);
-
-            int rowsAffected = stmt.executeUpdate();
-
-            if (rowsAffected > 0) {
-                System.out.println("Book with title " + title + " deleted.");
-            } else {
-                System.out.println("No book found with title " + title);
-            }
-
-        } catch (ClassNotFoundException e) {
-            System.out.println("PostgreSQL JDBC Driver not found.");
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (stmt != null) stmt.close();
-                if (con != null) con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+            int rows = stmt.executeUpdate();
+            System.out.println(rows > 0 ? "Book deleted: " + title : "No book found");
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     public static void updateBookId(String title, Integer newBookId) {
-        String connectionURL = "jdbc:postgresql://localhost:5432/postgres";
-        Connection con = null;
-        PreparedStatement stmt = null;
-
-        try {
-            Class.forName("org.postgresql.Driver");
-
-            con = DriverManager.getConnection(connectionURL, "postgres", "lagohe14");
-
-            // Обновляем книгу по её title, меняем её ID
-            String sqlUpdate = "UPDATE book SET id = ? WHERE title = ?";
-            stmt = con.prepareStatement(sqlUpdate);
-
-            stmt.setInt(1, newBookId);  // Новый ID
-            stmt.setString(2, title);  // Title книги, по которому будем искать
-
-            int rowsAffected = stmt.executeUpdate();
-
-            if (rowsAffected > 0) {
-                System.out.println("Book ID updated for book with title '" + title + "' to " + newBookId);
-            } else {
-                System.out.println("No book found with title '" + title + "'");
-            }
-
-        } catch (ClassNotFoundException e) {
-            System.out.println("PostgreSQL JDBC Driver not found.");
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (stmt != null) stmt.close();
-                if (con != null) con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        String sql = "UPDATE book SET id = ? WHERE title = ?";
+        try (Connection con = DriverManager.getConnection(URL, USER, PASS);
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, newBookId);
+            stmt.setString(2, title);
+            stmt.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
-
-    public static void printTablesInfoBook() {
-        String connectionURL = "jdbc:postgresql://localhost:5432/postgres";
-        Connection con = null;
-        Statement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            Class.forName("org.postgresql.Driver");
-            con = DriverManager.getConnection(connectionURL, "postgres", "lagohe14");
-            stmt = con.createStatement();
-
-            String sqlBook = "SELECT * FROM book";
-            rs = stmt.executeQuery(sqlBook);
-
-            System.out.println("Table: book");
+    public static List<Book> getAllBooks() {
+        List<Book> books = new ArrayList<>();
+        try (Connection con = DriverManager.getConnection(URL, USER, PASS);
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM book")) {
             while (rs.next()) {
-                String id = rs.getString("id");
-                String title = rs.getString("title");
-                String author = rs.getString("author");
-                Integer year = rs.getInt("year");
+                Book book = new Book();
+                book.setId(rs.getString("id"));
+                book.setTitle(rs.getString("title"));
+                book.setAuthor(rs.getString("author"));
+                book.setYear(rs.getInt("year"));
+                books.add(book);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return books;
+    }
+
+    // --- МЕТОДЫ ДЛЯ УЧАСТНИКОВ (LibraryMember) ---
+
+    public static List<LibraryMember> getAllMembers() {
+        List<LibraryMember> members = new ArrayList<>();
+        try (Connection con = DriverManager.getConnection(URL, USER, PASS);
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM librarymember ORDER BY id ASC")) {
+            while (rs.next()) {
+                LibraryMember member = new LibraryMember() {
+                    @Override public int getMaxBorrowCount() { return 0; }
+                };
+                member.setId(rs.getInt("id"));
+                member.setName(rs.getString("name"));
+                members.add(member);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return members;
+    }
+
+    public static boolean addLibraryMember(Integer id, String name) {
+        String sql = "INSERT INTO librarymember(id, name) VALUES (?, ?)";
+        try (Connection con = DriverManager.getConnection(URL, USER, PASS);
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.setString(2, name);
+            stmt.executeUpdate();
+            return true;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
+    }
+
+    public static boolean deleteLibraryMember(Integer id) {
+        String sql = "DELETE FROM librarymember WHERE id = ?";
+        try (Connection con = DriverManager.getConnection(URL, USER, PASS);
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
+    }
+
+    public static boolean updateLibraryMemberId(String name, Integer id) {
+        String sql = "UPDATE librarymember SET name = ? WHERE id = ?";
+        try (Connection con = DriverManager.getConnection(URL, USER, PASS);
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            stmt.setInt(2, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
+    }
+
+    // --- МЕТОДЫ ДЛЯ ЖУРНАЛОВ (Magazine) ---
+
+    public static List<Magazine> getAllMagazines() {
+        List<Magazine> magazines = new ArrayList<>();
+        try (Connection con = DriverManager.getConnection(URL, USER, PASS);
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM magazine")) {
+            while (rs.next()) {
+                Magazine mag = new Magazine();
+                mag.setId(rs.getString("id"));
+                mag.setTitle(rs.getString("title"));
+                mag.setYear(rs.getInt("year"));
+                mag.setIssue(rs.getInt("issue"));
+                magazines.add(mag);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return magazines;
+    }
+    public static void printTablesInfoBook() {
+        try (Connection con = DriverManager.getConnection(URL, USER, PASS);
+             Statement stmt = con.createStatement()) {
+
+            // Вывод информации о книгах
+            ResultSet rsBook = stmt.executeQuery("SELECT * FROM book");
+            System.out.println("--- Table: book ---");
+            while (rsBook.next()) {
+                String id = rsBook.getString("id");
+                String title = rsBook.getString("title");
+                String author = rsBook.getString("author");
+                int year = rsBook.getInt("year");
                 System.out.println("ID: " + id + ", Title: " + title + ", Author: " + author + ", Year: " + year);
             }
 
-            rs.close();
-
-            String sqlLibraryMember = "SELECT * FROM librarymember";
-            rs = stmt.executeQuery(sqlLibraryMember);
-
-            System.out.println("\nTable: librarymember");
-            while (rs.next()) {
-                Integer id = rs.getInt("id");
-                String name = rs.getString("name");
+            // Вывод информации об участниках
+            ResultSet rsMember = stmt.executeQuery("SELECT * FROM librarymember");
+            System.out.println("\n--- Table: librarymember ---");
+            while (rsMember.next()) {
+                int id = rsMember.getInt("id");
+                String name = rsMember.getString("name");
                 System.out.println("ID: " + id + ", Name: " + name);
             }
-        } catch (ClassNotFoundException e) {
-            System.out.println("PostgreSQL JDBC Driver not found.");
-            e.printStackTrace();
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-                if (con != null) con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
+    // --- МЕТОДЫ ДЛЯ ЖУРНАЛОВ (Magazine) ---
 
-    public static void addLibraryMember(Integer id, String name) {
-        String connectionURL = "jdbc:postgresql://localhost:5432/postgres";
-        Connection con = null;
-        PreparedStatement stmt = null;
-
-        try {
-            Class.forName("org.postgresql.Driver");
-
-            con = DriverManager.getConnection(connectionURL, "postgres", "lagohe14");
-
-            String sqlCourse = "INSERT INTO librarymember(id, name) VALUES (?, ?)";
-            stmt = con.prepareStatement(sqlCourse);
-
-            stmt.setInt(1, id);
-            stmt.setString(2, name);
-
+    public static void addMagazine(String id, String title, int year, int issue) {
+        String sql = "INSERT INTO magazine (id, title, year, issue) VALUES (?, ?, ?, ?)";
+        try (Connection con = DriverManager.getConnection(URL, USER, PASS);
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, id);
+            stmt.setString(2, title);
+            stmt.setInt(3, year);
+            stmt.setInt(4, issue);
             stmt.executeUpdate();
-
-            System.out.println("LibraryMember added: " + name);
-
-        } catch (ClassNotFoundException e) {
-            System.out.println("PostgreSQL JDBC Driver not found.");
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (stmt != null) stmt.close();
-                if (con != null) con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
-    public static void deleteLibraryMember(Integer id) {
-        String connectionURL = "jdbc:postgresql://localhost:5432/postgres";
-        Connection con = null;
-        PreparedStatement stmt = null;
-
-        try {
-            Class.forName("org.postgresql.Driver");
-
-            con = DriverManager.getConnection(connectionURL, "postgres", "lagohe14");
-
-            String sqlDelete = "DELETE FROM librarymember WHERE id = ?";
-            stmt = con.prepareStatement(sqlDelete);
-
-            stmt.setInt(1, id);
-
-            int rowsAffected = stmt.executeUpdate();
-
-            if (rowsAffected > 0) {
-                System.out.println("LibraryMember with ID " + id + " deleted.");
-            } else {
-                System.out.println("No library member found with ID " + id);
-            }
-
-        } catch (ClassNotFoundException e) {
-            System.out.println("PostgreSQL JDBC Driver not found.");
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (stmt != null) stmt.close();
-                if (con != null) con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+    public static boolean deleteMagazine(String id) {
+        String sql = "DELETE FROM magazine WHERE id = ?";
+        try (Connection con = DriverManager.getConnection(URL, USER, PASS);
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
-    public static void updateLibraryMemberId(String name, Integer newId) {
-        String connectionURL = "jdbc:postgresql://localhost:5432/postgres";
-        Connection con = null;
-        PreparedStatement stmt = null;
-
-        try {
-            Class.forName("org.postgresql.Driver");
-
-            con = DriverManager.getConnection(connectionURL, "postgres", "lagohe14");
-
-            // Обновляем ID члена библиотеки по имени
-            String sqlUpdate = "UPDATE librarymember SET id = ? WHERE name = ?";
-            stmt = con.prepareStatement(sqlUpdate);
-
-            stmt.setInt(1, newId);  // Новый ID
-            stmt.setString(2, name);  // Имя члена библиотеки, по которому будем искать
-
-            int rowsAffected = stmt.executeUpdate();
-
-            if (rowsAffected > 0) {
-                System.out.println("LibraryMember ID updated for member with name '" + name + "' to " + newId);
-            } else {
-                System.out.println("No LibraryMember found with name '" + name + "'");
-            }
-
-        } catch (ClassNotFoundException e) {
-            System.out.println("PostgreSQL JDBC Driver not found.");
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (stmt != null) stmt.close();
-                if (con != null) con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+    public static boolean updateMagazineTitle(String id, String newTitle) {
+        String sql = "UPDATE magazine SET title = ? WHERE id = ?";
+        try (Connection con = DriverManager.getConnection(URL, USER, PASS);
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, newTitle);
+            stmt.setString(2, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
     }
-
-
-    public static void printTablesInfoMember() {
-        String connectionURL = "jdbc:postgresql://localhost:5432/postgres";
-        Connection con = null;
-        Statement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            Class.forName("org.postgresql.Driver");
-
-            con = DriverManager.getConnection(connectionURL, "postgres", "lagohe14");
-
-            String sqlSelect = "SELECT * FROM librarymember";
-            stmt = con.createStatement();
-            rs = stmt.executeQuery(sqlSelect);
-
-            System.out.println("Library Member Information:");
-            while (rs.next()) {
-                Integer id = rs.getInt("id");
-                String name = rs.getString("name");
-
-                System.out.println("ID: " + id + ", Name: " + name);
-            }
-
-        } catch (ClassNotFoundException e) {
-            System.out.println("PostgreSQL JDBC Driver not found.");
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-                if (con != null) con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 }

@@ -5,20 +5,23 @@ import kz.aitu.Library.entities.DataBaseControl;
 import kz.aitu.Library.entities.LibraryMember;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
 public class BookController {
 
-    // Add Book
-    @PostMapping("/addBook")
-    public String addBook(@RequestBody Book book) {
-        DataBaseControl.addBook(book.getId(), book.getTitle(), book.getAuthor(), book.getYear());
-        return "Book added";
+    // Массовое добавление книг
+    @PostMapping("/addBooks")
+    public String addBooks(@RequestBody List<Book> books) {
+        for (Book book : books) {
+            DataBaseControl.addBook(book.getId(), book.getTitle(), book.getAuthor(), book.getYear());
+        }
+        return "Все книги ( " + books.size() + " шт.) успешно добавлены!";
     }
 
     // Delete Book
-    @PostMapping("/deleteBook")
+    @DeleteMapping("/deleteBook")
     public String deleteBook(@RequestBody Book book) {
         DataBaseControl.deleteBook(book.getTitle());
         return "Book deleted";
@@ -43,41 +46,17 @@ public class BookController {
         return "Book information printed";
     }
 
-    // Add Library Member
-    @PostMapping("/addLibraryMember")
-    public String addLibraryMember(@RequestBody Map<String, String> member) {
-        Integer id = Integer.parseInt(member.get("id"));
-        String name = member.get("name");
-        DataBaseControl.addLibraryMember(id, name);
-        return "Library Member added";
+    // Вывод всех книг в Postman
+    @GetMapping("/getBooks")
+    public List<Book> getBooks() {
+        return DataBaseControl.getAllBooks();
     }
 
-    // Delete Library Member
-    @PostMapping("/deleteLibraryMember")
-    public String deleteLibraryMember(@RequestBody Map<String, Integer> member) {
-        Integer id = member.get("id");
-        DataBaseControl.deleteLibraryMember(id);
-        return "Library member deleted";
-    }
-
-    // Update Library Member ID
-    @PostMapping("/updateLibraryMemberId")
-    public String updateLibraryMemberId(@RequestBody Map<String, Object> memberData) {
-        String name = (String) memberData.get("name");
-        Integer newId = (Integer) memberData.get("newId");
-
-        // Вызов метода для обновления ID члена библиотеки по имени
-        DataBaseControl.updateLibraryMemberId(name, newId);
-        return "Library member ID updated";
-    }
-
-
-    // Print Library Member Information
-    @GetMapping("/printTablesInfoMember")
-    public String printTablesInfoMember() {
-        DataBaseControl.printTablesInfoMember();
-        return "Library member information printed";
-    }
+//    // Вывод всех участников в Postman
+//    @GetMapping("/getMembers")
+//    public List<LibraryMember> getMembers() {
+//        return DataBaseControl.getAllMembers();
+//    }
 
 
 }
