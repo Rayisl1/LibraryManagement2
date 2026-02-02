@@ -1,8 +1,7 @@
 package kz.aitu.Library.Controllers;
 
-import kz.aitu.Library.entities.Book;
-import kz.aitu.Library.entities.DataBaseControl;
-import kz.aitu.Library.entities.LibraryMember;
+import kz.aitu.Library.entities.inventory.Book;
+import kz.aitu.Library.repository.BookRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,19 +10,17 @@ import java.util.Map;
 @RestController
 public class BookController {
 
-    // Массовое добавление книг
     @PostMapping("/addBooks")
     public String addBooks(@RequestBody List<Book> books) {
         for (Book book : books) {
-            DataBaseControl.addBook(book.getId(), book.getTitle(), book.getAuthor(), book.getYear());
+            BookRepository.addBook(book.getId(), book.getTitle(), book.getAuthor(), book.getYear());
         }
         return "Все книги ( " + books.size() + " шт.) успешно добавлены!";
     }
 
-    // Delete Book
     @DeleteMapping("/deleteBook")
     public String deleteBook(@RequestBody Book book) {
-        DataBaseControl.deleteBook(book.getTitle());
+        BookRepository.deleteBook(book.getTitle());
         return "Book deleted";
     }
 
@@ -31,32 +28,17 @@ public class BookController {
     public String updateBookId(@RequestBody Map<String, Object> bookData) {
         String title = (String) bookData.get("title");
         Integer newBookId = (Integer) bookData.get("newBookId");
-
-        // Вызов метода для обновления ID книги
-        DataBaseControl.updateBookId(title, newBookId);
+        BookRepository.updateBookId(title, newBookId);
         return "Book ID updated";
     }
 
-
-
-    // Print Book Information
-    @GetMapping("/printTablesInfoBook")
-    public String printTablesInfoBook() {
-        DataBaseControl.printTablesInfoBook();
-        return "Book information printed";
-    }
-
-    // Вывод всех книг в Postman
     @GetMapping("/getBooks")
     public List<Book> getBooks() {
-        return DataBaseControl.getAllBooks();
+        return BookRepository.getAllBooks();
     }
 
-//    // Вывод всех участников в Postman
-//    @GetMapping("/getMembers")
-//    public List<LibraryMember> getMembers() {
-//        return DataBaseControl.getAllMembers();
-//    }
-
-
+    @GetMapping("/getBook/{id}")
+    public Book getBookById(@PathVariable String id) {
+        return BookRepository.findBookById(id);
+    }
 }

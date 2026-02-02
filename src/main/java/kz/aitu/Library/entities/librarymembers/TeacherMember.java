@@ -1,6 +1,4 @@
-package kz.aitu.Library;
-
-import kz.aitu.Library.entities.LibraryMember;
+package kz.aitu.Library.entities.librarymembers;
 
 public class TeacherMember extends LibraryMember {
     public TeacherMember(int id, String name) {

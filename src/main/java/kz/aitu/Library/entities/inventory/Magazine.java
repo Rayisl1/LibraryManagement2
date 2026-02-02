@@ -1,4 +1,6 @@
-package kz.aitu.Library.entities;
+package kz.aitu.Library.entities.inventory;
+
+import kz.aitu.Library.entities.utils.LibraryItem;
 
 public class Magazine extends LibraryItem {
     private int issue;
@@ -23,7 +25,6 @@ public class Magazine extends LibraryItem {
         return "Magazine{" + super.toString() + ", issue=" + issue + "}";
     }
 
-    // ИСПРАВЛЕННЫЕ МЕТОДЫ (теперь они сохраняют данные)
     public void setId(String id) {
         this.id = id;
     }
@@ -34,5 +35,12 @@ public class Magazine extends LibraryItem {
 
     public void setYear(int year) {
         this.year = year;
+    }
+
+    public void setIssueNumber(int issueNumber) {
+    }
+
+    public void setCategory(String category) {
+
     }
 }

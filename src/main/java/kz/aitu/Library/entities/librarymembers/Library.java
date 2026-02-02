@@ -1,4 +1,6 @@
-package kz.aitu.Library.entities;
+package kz.aitu.Library.entities.librarymembers;
+
+import kz.aitu.Library.entities.inventory.Book;
 
 import java.util.ArrayList;
 import java.util.Comparator;

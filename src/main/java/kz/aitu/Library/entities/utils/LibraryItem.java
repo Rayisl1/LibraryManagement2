@@ -1,12 +1,12 @@
-package kz.aitu.Library.entities;
+package kz.aitu.Library.entities.utils;
 
 import java.util.Objects;
 
 public abstract class LibraryItem {
 
-    String id;
-    String title;
-    int year;
+    protected String id;
+    protected String title;
+    protected int year;
     private Integer borrowedByMemberId = null;
 
     public LibraryItem(String id, String title, int year) {
@@ -55,4 +55,5 @@ public abstract class LibraryItem {
     public int hashCode() {
         return Objects.hash(id);
     }
+
 }

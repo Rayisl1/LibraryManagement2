@@ -1,4 +1,6 @@
-package kz.aitu.Library.entities;
+package kz.aitu.Library.entities.inventory;
+
+import kz.aitu.Library.entities.librarymembers.LibraryMember;
 
 public class Book {
     private String id;
@@ -7,7 +9,7 @@ public class Book {
     private Integer year;
     private Integer borrowedByMemberId = null;
 
-    public Book() {} // Пустой конструктор для JSON
+    public Book() {}
 
     // Методы для логики Library.java
     public boolean isAvailable() { return borrowedByMemberId == null; }
@@ -24,4 +26,15 @@ public class Book {
     public Integer getYear() { return year; }
     public void setYear(Integer year) { this.year = year; }
     public Integer getBorrowedByMemberId() { return borrowedByMemberId; }
+
+    public static class StudentMember extends LibraryMember {
+        public StudentMember(int id, String name) {
+            super(id, name);
+        }
+
+        @Override
+        public int getMaxBorrowCount() {
+            return 3;
+        }
+    }
 }

@@ -1,13 +1,11 @@
-package kz.aitu.Library.entities;
+package kz.aitu.Library.entities.librarymembers;
 
 import java.util.Objects;
 
-// Убрали слово abstract, теперь это обычный класс
 public class LibraryMember {
-    private int id; // Убрали final, чтобы работал сеттер
+    private int id;
     private String name;
 
-    // ОБЯЗАТЕЛЬНО: Пустой конструктор для JDBC и Spring
     public LibraryMember() {
     }
 
@@ -19,13 +17,12 @@ public class LibraryMember {
     public int getId() { return id; }
     public String getName() { return name; }
 
-    // Сеттеры необходимы для метода getAllMembers в DataBaseControl
+
     public void setId(int id) { this.id = id; }
     public void setName(String name) { this.name = name; }
 
-    // Теперь это обычный метод вместо абстрактного
     public int getMaxBorrowCount() {
-        return 5; // Значение по умолчанию
+        return 5;
     }
 
     @Override

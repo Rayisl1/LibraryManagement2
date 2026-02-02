@@ -1,4 +1,6 @@
-package kz.aitu.Library.entities;
+package kz.aitu.Library.entities.utils;
+
+import kz.aitu.Library.entities.inventory.Book;
 
 public class LibraryPrinter {
 
